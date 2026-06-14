@@ -1,0 +1,29 @@
+services:
+  onboarding:
+    image: webservices/onboarding-service:local-build
+    build:
+      context: .
+      dockerfile: ./stack.containers/onboarding-service/Dockerfile
+    container_name: onboarding
+    restart: unless-stopped
+    networks:
+      - caddy
+    environment:
+      DOMAIN: ${DOMAIN}
+      KEYCLOAK_REALM: webservices
+      KEYCLOAK_INTERNAL_URL: http://keycloak:8080
+      KEYCLOAK_ADMIN_USER: ${KEYCLOAK_ADMIN_USER:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-}
+      ONBOARDING_SELF_SERVICE_ENABLED: ${ONBOARDING_SELF_SERVICE_ENABLED:-false}
+      ONBOARDING_INVITES_JSON: ${ONBOARDING_INVITES_JSON:-[]}
+      ONBOARDING_TRUSTED_PROXY_SECRET: ${ONBOARDING_TRUSTED_PROXY_SECRET:?ONBOARDING_TRUSTED_PROXY_SECRET is required}
+    volumes:
+      - onboarding_data:/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=2).read()"
+      interval: 5s
+      timeout: 4s
+      retries: 12
+      start_period: 15s
