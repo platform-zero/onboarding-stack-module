@@ -17,7 +17,9 @@
   "smokeUnsupportedReason": "requires generated bundle context, deployed networking, secrets, or service dependencies",
   "overlays": [
     "stack.compose/onboarding.yml",
-    "stack.containers/onboarding-service"
+    "stack.containers/onboarding-service",
+    "stack.containers/test-runner/playwright-tests/tests/deep/forward-auth/onboarding.spec.ts",
+    "stack.containers/test-runner/playwright-tests/tests/deep/forward-auth/onboarding-self-service.spec.ts"
   ],
   "testAssets": []
 }
