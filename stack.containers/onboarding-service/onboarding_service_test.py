@@ -1,6 +1,5 @@
 import importlib.util
 import os
-import tempfile
 import unittest
 from email.message import Message
 from pathlib import Path
@@ -10,7 +9,6 @@ def load_service_module():
     os.environ.setdefault("DOMAIN", "example.test")
     os.environ.setdefault("ONBOARDING_TRUSTED_PROXY_SECRET", "proxy-secret")
     os.environ.setdefault("KEYCLOAK_REALM", "webservices")
-    os.environ.setdefault("ONBOARDING_INVITES_JSON", "[]")
 
     module_path = Path(__file__).with_name("onboarding_service.py")
     spec = importlib.util.spec_from_file_location("onboarding_service_under_test", module_path)
@@ -66,41 +64,18 @@ class OnboardingTrustedProxyTest(unittest.TestCase):
             service.keycloak_account_url(),
         )
 
-    def test_required_actions_resolve_from_modular_method_names(self):
-        self.assertEqual(
-            ["UPDATE_PASSWORD", "CONFIGURE_TOTP"],
-            service.required_actions_for_methods(["password", "totp"]),
-        )
+    def test_render_page_explains_required_actions_for_existing_users(self):
+        page = service.render_page("gerald", {"users", "onboarding_required"}, "gerald@example.test")
 
-        with self.assertRaises(ValueError):
-            service.required_actions_for_methods(["wallet"])
+        self.assertIn("Finish account setup in Keycloak", page)
+        self.assertIn("Update the temporary password in Keycloak.", page)
 
-    def test_invite_code_can_be_plain_or_hashed(self):
-        plain = {"code": "abc123"}
-        hashed = {
-            "codeHash": "6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090"
-        }
+    def test_render_page_does_not_show_required_actions_without_marker(self):
+        page = service.render_page("gerald", {"users"}, "gerald@example.test")
 
-        self.assertTrue(service.invite_code_matches(plain, "abc123"))
-        self.assertTrue(service.invite_code_matches(hashed, "abc123"))
-        self.assertFalse(service.invite_code_matches(hashed, "wrong"))
-
-    def test_invite_policy_enforces_email_domain_and_max_uses(self):
-        with tempfile.TemporaryDirectory() as temp_dir:
-            original_state_path = service.STATE_PATH
-            service.STATE_PATH = Path(temp_dir) / "state.json"
-            try:
-                invite = {"id": "team", "emailDomains": ["example.test"], "maxUses": 1}
-                service.assert_invite_available(invite, "alice@example.test")
-                service.mark_invite_used(invite)
-
-                with self.assertRaises(ValueError):
-                    service.assert_invite_available(invite, "bob@example.test")
-
-                with self.assertRaises(ValueError):
-                    service.assert_invite_available({"emailDomains": ["example.test"]}, "alice@other.test")
-            finally:
-                service.STATE_PATH = original_state_path
+        self.assertIn("Account setup complete", page)
+        self.assertNotIn("Update the temporary password in Keycloak.", page)
+        self.assertIn("does not create accounts", page)
 
 
 if __name__ == "__main__":
