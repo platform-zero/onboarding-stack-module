@@ -21,6 +21,12 @@ signup, self-service registration, or any unauthenticated onboarding entrypoint.
 have required actions to complete. Users marked with `onboarding_required`
 should be redirected to the authenticated onboarding page after login.
 
+Create those accounts through the operator surface:
+
+```sh
+stackctl users create --username <username> --password <password>
+```
+
 Tests and screenshots should prove the authenticated required-action flow. A
 public registration form or anonymous onboarding path is a regression.
 
