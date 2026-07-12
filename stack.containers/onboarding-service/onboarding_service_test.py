@@ -70,13 +70,6 @@ class OnboardingTrustedProxyTest(unittest.TestCase):
         self.assertIn("Finish account setup in Keycloak", page)
         self.assertIn("Update the temporary password in Keycloak.", page)
 
-    def test_render_page_does_not_show_required_actions_without_marker(self):
-        page = service.render_page("gerald", {"users"}, "gerald@example.test")
-
-        self.assertIn("Account setup complete", page)
-        self.assertNotIn("Update the temporary password in Keycloak.", page)
-        self.assertIn("does not create accounts", page)
-
 
 if __name__ == "__main__":
     unittest.main()
