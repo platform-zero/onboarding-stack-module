@@ -1,0 +1,35 @@
+---
+schemaVersion: 1
+module: "onboarding"
+target: "core"
+services:
+  onboarding:
+    image: "webservices/onboarding-service:local-build"
+    build:
+      context: "."
+      containerfile: "./stack.containers/onboarding-service/Dockerfile"
+    containerName: "onboarding"
+    lifecycle: "daemon"
+    updatePolicy: "pinned"
+    placement: "rootful"
+    environment:
+      DOMAIN: "${DOMAIN}"
+      KEYCLOAK_REALM: "webservices"
+      ONBOARDING_TRUSTED_PROXY_SECRET: "${ONBOARDING_TRUSTED_PROXY_SECRET:?ONBOARDING_TRUSTED_PROXY_SECRET\
+        \ is required}"
+    networks:
+    - "caddy"
+    volumes:
+    - "onboarding_data:/data"
+    health:
+      test:
+      - "CMD-SHELL"
+      - "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health',\
+        \ timeout=2).read()\""
+      interval: "5s"
+      timeout: "4s"
+      retries: 12
+      start_period: "15s"
+    restart: "unless-stopped"
+networks: {}
+volumes: {}
