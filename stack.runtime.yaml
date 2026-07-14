@@ -7,7 +7,7 @@ services:
     image: "webservices/onboarding-service:local-build"
     build:
       context: "."
-      containerfile: "./stack.containers/onboarding-service/Dockerfile"
+      containerfile: "./stack.containers/onboarding-service/Containerfile"
     containerName: "onboarding"
     lifecycle: "daemon"
     updatePolicy: "pinned"
