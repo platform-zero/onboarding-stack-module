@@ -6,7 +6,7 @@
 - Lifecycle: `active`
 
 ## Owned overlays
-- `stack.compose/onboarding.yml`
+- `stack.runtime.yaml`
 - `stack.containers/onboarding-service`
 
 ## Dependencies
