@@ -11,4 +11,5 @@ if [ -z "$validator" ]; then
   done
 fi
 [ -n "$validator" ] || { printf '[module-contract] set WEBSERVICES_MODULE_CONTRACT_VALIDATOR or keep sso-stack-generator next to modules workspace\n' >&2; exit 1; }
-exec "$validator" validate "$repo_root"
+"$validator" validate "$repo_root"
+python3 "$repo_root/stack.containers/onboarding-service/onboarding_service_test.py"

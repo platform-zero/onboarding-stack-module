@@ -9,7 +9,8 @@ test('Onboarding does not expose a public entrypoint without an existing stack s
     timeout: 30000,
   });
 
-  expect(response?.ok()).toBeTruthy();
+  expect(response, 'onboarding navigation should produce an HTTP response').not.toBeNull();
+  expect(response?.status()).toBe(200);
   const currentUrl = new URL(page.url());
   const currentLocation = `${currentUrl.hostname}${currentUrl.pathname}`;
 
